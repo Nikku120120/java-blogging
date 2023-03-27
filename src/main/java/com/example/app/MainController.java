@@ -5,6 +5,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.io.IOException;
+import java.time.LocalDate;
+
 @Controller
 public class MainController {
 
@@ -12,9 +15,26 @@ public class MainController {
     CoronaService coronaService;
 
     @GetMapping("/")
-    public String root(Model model) {
-        coronaService.populate();
-        model.addAttribute("test", "Hello Nithish");
+    public String LoadData(Model model) {
+        try {
+            coronaService.populate();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return "DataLoaded";
+    }
+
+    @GetMapping("/findBetween")
+    public String filterHome(Model model) {
+
+        model.addAttribute("coronaData", coronaService.findByLastUpdate(LocalDate.now().minusYears(2)));
+        return "MainTemplate";
+    }
+
+    @GetMapping("/home")
+    public String homePage(Model model) {
+
+        model.addAttribute("coronaData", coronaService.findAll());
         return "MainTemplate";
     }
 }
